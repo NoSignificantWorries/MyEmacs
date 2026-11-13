@@ -1,0 +1,21 @@
+# Бэкапы и временные файлы
+*~
+\#*\#
+auto-save-list/
+
+# Установленные пакеты (генерируется package.el)
+elpa/
+
+# Кэш нативной компиляции (Emacs 28+)
+eln-cache/
+
+# История, закладки и состояние сессий
+history
+places.eld
+projectile-bookmarks.eld
+projectile-frecency.eld
+transient/
+
+# Файлы, созданные customize (если не хотите их трекать)
+custom.el
+
