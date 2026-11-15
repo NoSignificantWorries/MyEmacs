@@ -19,3 +19,8 @@ transient/
 # Файлы, созданные customize (если не хотите их трекать)
 custom.el
 
+/tree-sitter/
+/tramp
+*.eld
+/language-servers/
+/.lsp-session-v1
