@@ -36,7 +36,9 @@
 (savehist-mode 1)
 (save-place-mode 1)
 
-(pixel-scroll-precision-mode 1)
+;; (pixel-scroll-precision-mode 1)
+(setq scroll-conservatively 101)
+(setq scroll-margin 8)
 
 (use-package dired
   :ensure nil
@@ -50,24 +52,37 @@
   :hook
   (dired-mode . dired-omit-mode)
   :config
+  (evil-make-overriding-map dirvish-mode-map 'normal)
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-single-up-directory
     "l" 'dired-single-buffer))
 
 (setq dired-kill-when-opening-new-dired-buffer t)
 
-(use-package dired-subtree
+(use-package dirvish
   :ensure t
-  :after dired
-  :bind (:map dired-mode-map
-              ("<tab>" . dired-subtree-toggle)
-              ("<backtab>" . dired-subtree-cycle))
-  :config
-  (setq dired-subtree-use-backgrounds nil))
+  :init
+  ;; Глобальная замена стандартного Dired на Dirvish
+  (dirvish-override-dired-mode)
+  :custom
+  ;; Вы можете перенести сюда настройки dired-listing-switches из вашего блока dired,
+  ;; или оставить их в блоке dired — Dirvish будет использовать их совместно
+  (dirvish-attributes '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size))
+  :config)
 
-(use-package all-the-icons-dired
-  :ensure t
-  :hook (dired-mode . all-the-icons-dired-mode))
+
+;; (use-package dired-subtree
+;;   :ensure t
+;;   :after dired
+;;   :bind (:map dired-mode-map
+;;               ("<tab>" . dired-subtree-toggle)
+;;               ("<backtab>" . dired-subtree-cycle))
+;;   :config
+;;   (setq dired-subtree-use-backgrounds nil))
+
+;; (use-package all-the-icons-dired
+;;   :ensure t
+;;   :hook (dired-mode . all-the-icons-dired-mode))
 
 (use-package dired-open
   :ensure t
@@ -125,8 +140,15 @@
   :custom (git-gutter:update-interval 2))
 
 ;;; ---------------------------------------------------------------------------
-;;; Magit
+;;; LSP
 ;;; ---------------------------------------------------------------------------
+
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
 
 (use-package lsp-mode
   :ensure t
@@ -139,14 +161,10 @@
   (rust-mode . lsp)
   (rust-ts-mode . lsp)
   :custom
-  ;; Префикс для команд lsp-mode. У тебя лидер SPC, так что можно C-c l
   (lsp-keymap-prefix "C-c l")
-  ;; Включать which-key для lsp команд (у тебя он уже есть)
   (lsp-enable-which-key-integration t)
-  ;; Не спрашивать подтверждения для некоторых действий
   (lsp-auto-guess-root t) ; автоматически определять корень проекта
   :config
-  ;; Если хочешь использовать Consult для поиска символов в проекте
   (with-eval-after-load 'consult
     (define-key lsp-mode-map [remap xref-find-apropos] #'consult-lsp-symbols)))
 
@@ -160,6 +178,18 @@
 (use-package consult-lsp
   :ensure t
   :after (consult lsp-mode))
+
+(use-package lsp-pyright
+  :ensure t
+  :after lsp-mode
+  :hook (python-ts-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred)))) ; или (lsp)
+
+(use-package corfu
+  :ensure t
+  :init (global-corfu-mode 1))
+(setq corfu-auto t)
 
 ;;; ---------------------------------------------------------------------------
 ;;; 4. Keybindings
@@ -238,6 +268,30 @@
   :init (doom-modeline-mode 1)
   :custom ((doom-modeline-height 15)))
 
+(use-package dashboard
+  :ensure t
+  :config
+
+  (setq dashboard-display-icons-p t)
+  (setq dashboard-icon-type 'nerd-icons)
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  
+  (setq dashboard-projects-backend 'projectile)
+
+  
+  (setq dashboard-items '((bookmarks . 3)
+                          (projects  . 6)
+                          (agenda    . 3)))
+
+  (setq dashboard-startup-banner 'logo)
+  (setq dashboard-center-content t)
+  (setq dashboard-banner-logo-title "Welcome back, Master.")
+
+ (setq dashboard-startup-banner "~/.config/emacs/banners/ue-colorful.png")   
+
+  (dashboard-setup-startup-hook))
+
 ;;; ---------------------------------------------------------------------------
 ;;; 7. Tools
 ;;; ---------------------------------------------------------------------------
@@ -253,5 +307,4 @@
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
   (load custom-file))
-
 
