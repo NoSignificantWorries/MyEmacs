@@ -24,3 +24,4 @@ custom.el
 *.eld
 /language-servers/
 /.lsp-session-v1
+.cache/treemacs-persist

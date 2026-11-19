@@ -52,24 +52,11 @@
   :hook
   (dired-mode . dired-omit-mode)
   :config
-  (evil-make-overriding-map dirvish-mode-map 'normal)
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-single-up-directory
     "l" 'dired-single-buffer))
 
 (setq dired-kill-when-opening-new-dired-buffer t)
-
-(use-package dirvish
-  :ensure t
-  :init
-  ;; Глобальная замена стандартного Dired на Dirvish
-  (dirvish-override-dired-mode)
-  :custom
-  ;; Вы можете перенести сюда настройки dired-listing-switches из вашего блока dired,
-  ;; или оставить их в блоке dired — Dirvish будет использовать их совместно
-  (dirvish-attributes '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size))
-  :config)
-
 
 ;; (use-package dired-subtree
 ;;   :ensure t
@@ -117,6 +104,26 @@
       "H" 'dired-omit-mode)))
 
 ;;; ---------------------------------------------------------------------------
+;;; Dirvish
+;;; ---------------------------------------------------------------------------
+
+;; (use-package dirvish
+;;   :ensure t
+;;   :init
+;;   ;; Глобальная замена стандартного Dired на Dirvish
+;;   (dirvish-override-dired-mode)
+;;   :custom
+;;   ;; Вы можете перенести сюда настройки dired-listing-switches из вашего блока dired,
+;;   ;; или оставить их в блоке dired — Dirvish будет использовать их совместно
+;;   (dirvish-attributes '(vc-state subtree-state nerd-icons collapse git-msg file-time file-size))
+;;   :config)
+
+; (evil-make-overriding-map dirvish-mode-map 'normal)
+; (with-eval-after-load 'dirvish
+;   (evil-define-key 'normal 'dirvish-mode-map
+;     (kbd "TAB") 'dirvish-subtree-toggle))
+
+;;; ---------------------------------------------------------------------------
 ;;; Projectile
 ;;; ---------------------------------------------------------------------------
 
@@ -138,6 +145,31 @@
 (use-package git-gutter
   :init (global-git-gutter-mode 1)
   :custom (git-gutter:update-interval 2))
+
+;;; ---------------------------------------------------------------------------
+;;; Treemacs
+;;; ---------------------------------------------------------------------------
+
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (use-package treemacs-evil
+    :ensure t)
+  (progn
+    (setq treemacs-width 40)))
+
+(use-package treemacs-projectile
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
+
+(use-package treemacs-magit
+  :after (treemacs magit)
+  :ensure t)
 
 ;;; ---------------------------------------------------------------------------
 ;;; LSP
@@ -172,8 +204,8 @@
   :ensure t
   :commands lsp-ui-mode
   :custom
-  (lsp-ui-doc-enable t) ; показывать документацию при наведении
-  (lsp-ui-sideline-enable t)) ; показывать ошибки/инфо в строке
+  (lsp-ui-doc-enable t)
+  (lsp-ui-sideline-enable t))
 
 (use-package consult-lsp
   :ensure t
@@ -288,7 +320,7 @@
   (setq dashboard-center-content t)
   (setq dashboard-banner-logo-title "Welcome back, Master.")
 
- (setq dashboard-startup-banner "~/.config/emacs/banners/ue-colorful.png")   
+  (setq dashboard-startup-banner "~/.config/emacs/banners/ue-colorful.png")   
 
   (dashboard-setup-startup-hook))
 
@@ -302,7 +334,7 @@
 
 ;;; ---------------------------------------------------------------------------
 ;;; 9. Custom file
-;;; ---------------------------------------------------------------------------
+;; ---------------------------------------------------------------------------
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (when (file-exists-p custom-file)
